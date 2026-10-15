@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ApiService } from './api.service';
 import { CharityEvent, Organisation } from './models';
@@ -14,8 +14,15 @@ import { CharityEvent, Organisation } from './models';
 })
 export class HomeComponent implements OnInit {
   private readonly api = inject(ApiService);
+  private readonly changeDetector = inject(ChangeDetectorRef);
   events: CharityEvent[] = []; mission = 'Loading our mission...'; loading = true;
-  ngOnInit(): void { this.api.organisation().subscribe({ next: (orgs: Organisation[]) => this.mission = orgs[0]?.mission ?? this.mission }); this.api.events().subscribe({ next: (data) => { this.events = data.events.slice(0, 4); this.loading = false; }, error: () => this.loading = false }); }
+  ngOnInit(): void {
+    this.api.organisation().subscribe({ next: (orgs: Organisation[]) => { this.mission = orgs[0]?.mission ?? this.mission; this.changeDetector.markForCheck(); } });
+    this.api.events().subscribe({
+      next: (data) => { this.events = data.events.slice(0, 4); this.loading = false; this.changeDetector.markForCheck(); },
+      error: () => { this.loading = false; this.changeDetector.markForCheck(); },
+    });
+  }
   image(event: CharityEvent): string { const images: Record<string, string> = { run: 'sunrise%20run_cleanup.jpg', gala: 'women%20and%20children.jpg', music: 'protect%20see.jpg', auction: 'provide%20laptop%20for%20yang%20people.jpg', workshop: 'fix%20tools.jpg', walk: 'Twilight%20Steps%20Challenge.jpg', dinner: 'Table%20of%20Thanks.jpg', mic: 'Open%20Mic%20for%20Mental%20Health.jpg' }; return `assets/${images[event.imageKey] ?? 'home.jpg'}`; }
   date(value: string): string { return new Intl.DateTimeFormat('en-AU', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(`${value}T00:00:00`)); }
   money(value: number): string { return value === 0 ? 'Free' : `$${value.toFixed(0)}`; }

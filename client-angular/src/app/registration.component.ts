@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiService } from './api.service';
@@ -11,10 +11,11 @@ import { CharityEvent } from './models';
 `, })
 export class RegistrationComponent implements OnInit {
   private readonly api = inject(ApiService); private readonly route = inject(ActivatedRoute); private readonly fb = inject(FormBuilder);
+  private readonly changeDetector = inject(ChangeDetectorRef);
   readonly form = this.fb.nonNullable.group({ fullName: ['', [Validators.required, Validators.maxLength(120)]], email: ['', [Validators.required, Validators.email]], phone: ['', [Validators.required, Validators.maxLength(40)]], ticketCount: [1, [Validators.required, Validators.min(1), Validators.max(20)]] });
   event?: CharityEvent; saving = false; success = false; error = '';
-  ngOnInit(): void { const id = Number(this.route.snapshot.paramMap.get('id')); if (id) this.api.event(id).subscribe({ next: (item) => this.event = item }); }
-  submit(): void { this.error = ''; this.success = false; if (this.form.invalid || !this.event) { this.form.markAllAsTouched(); return; } this.saving = true; this.api.register({ eventId: this.event.id, ...this.form.getRawValue() }).subscribe({ next: () => { this.success = true; this.form.reset({ fullName: '', email: '', phone: '', ticketCount: 1 }); this.saving = false; }, error: (failure) => { this.error = failure.error?.error ?? 'Unable to complete registration.'; this.saving = false; } }); }
+  ngOnInit(): void { const id = Number(this.route.snapshot.paramMap.get('id')); if (id) this.api.event(id).subscribe({ next: (item) => { this.event = item; this.changeDetector.markForCheck(); } }); }
+  submit(): void { this.error = ''; this.success = false; if (this.form.invalid || !this.event) { this.form.markAllAsTouched(); return; } this.saving = true; this.api.register({ eventId: this.event.id, ...this.form.getRawValue() }).subscribe({ next: () => { this.success = true; this.form.reset({ fullName: '', email: '', phone: '', ticketCount: 1 }); this.saving = false; this.changeDetector.markForCheck(); }, error: (failure) => { this.error = failure.error?.error ?? 'Unable to complete registration.'; this.saving = false; this.changeDetector.markForCheck(); } }); }
   date(value: string): string { return new Intl.DateTimeFormat('en-AU', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(`${value}T00:00:00`)); }
   money(value: number): string { return value === 0 ? 'Free' : `$${value.toFixed(0)}`; }
 }
