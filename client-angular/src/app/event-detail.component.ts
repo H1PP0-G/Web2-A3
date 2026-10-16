@@ -1,0 +1,23 @@
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ApiService } from './api.service';
+import { CharityEvent, WeatherForecast } from './models';
+
+@Component({
+  selector: 'app-event-detail', imports: [CommonModule, RouterLink],
+  template: `
+    <section class="detail section-shell" *ngIf="event as item; else loading"><div class="detail-top"><a class="text-link" routerLink="/search">← Back to events</a><span class="event-tag">{{ item.category.name }}</span></div><div class="detail-grid"><div><div class="detail-image" [style.background-image]="'url(' + image(item) + ')'" ></div><p class="eyebrow coral">The event</p><h1>{{ item.name }}</h1><p class="detail-purpose">{{ item.purpose }}</p><p class="detail-description">{{ item.description }}</p><div class="weather" *ngIf="weather as forecast"><strong>Forecast for {{ date(item.date) }}</strong><span>{{ weatherText(forecast.daily.weather_code[0]) }} · {{ forecast.daily.temperature_2m_min[0] }}°C to {{ forecast.daily.temperature_2m_max[0] }}°C</span></div></div><aside class="detail-aside"><div class="info-block"><span class="info-label">When</span><strong>{{ date(item.date) }}</strong><span>{{ time(item.startTime) }} – {{ time(item.endTime) }}</span></div><div class="info-block"><span class="info-label">Where</span><strong>{{ item.venue }}</strong><span>{{ item.address }}, {{ item.city }}</span></div><div class="info-block"><span class="info-label">Entry</span><strong>{{ money(item.ticketPrice) }}</strong><span>Every ticket is a donation</span></div><div class="progress-block"><div class="progress-heading"><span>Goal progress</span><strong>{{ item.progressPercent }}%</strong></div><div class="progress-track"><span [style.width.%]="item.progressPercent"></span></div><p>&#36;{{ item.raisedAmount | number }} raised of &#36;{{ item.goalAmount | number }}</p></div><a class="button" [routerLink]="['/register', item.id]">Register for this event <span>→</span></a></aside></div><section class="registrations"><div class="section-heading"><div><p class="eyebrow coral">Community interest</p><h2>Recent registrations</h2></div><span>{{ item.registrations?.length ?? 0 }} registrations</span></div><p *ngIf="!item.registrations?.length" class="status">Be the first to register.</p><div class="registration-list"><article *ngFor="let registration of item.registrations"><strong>{{ registration.fullName }}</strong><span>{{ registration.ticketCount }} ticket{{ registration.ticketCount === 1 ? '' : 's' }}</span><time>{{ dateTime(registration.registeredAt) }}</time></article></div></section></section><ng-template #loading><p class="status section-shell">{{ message }}</p></ng-template>
+  `,
+})
+export class EventDetailComponent implements OnInit {
+  private readonly api = inject(ApiService); private readonly route = inject(ActivatedRoute);
+  event?: CharityEvent; weather?: WeatherForecast; message = 'Loading event details...';
+  ngOnInit(): void { const id = Number(this.route.snapshot.paramMap.get('id')); if (!id) { this.message = 'Choose an event from the search page.'; return; } this.api.event(id).subscribe({ next: (item) => { this.event = item; this.api.weather(item).subscribe({ next: (forecast) => this.weather = forecast }); }, error: (error) => this.message = error.error?.error ?? 'Unable to load event.' }); }
+  image(event: CharityEvent): string { const images: Record<string, string> = { run: 'sunrise%20run_cleanup.jpg', gala: 'women%20and%20children.jpg', music: 'protect%20see.jpg', auction: 'provide%20laptop%20for%20yang%20people.jpg', workshop: 'fix%20tools.jpg', walk: 'Twilight%20Steps%20Challenge.jpg', dinner: 'Table%20of%20Thanks.jpg', mic: 'Open%20Mic%20for%20Mental%20Health.jpg' }; return `assets/${images[event.imageKey] ?? 'home.jpg'}`; }
+  date(value: string): string { return new Intl.DateTimeFormat('en-AU', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(`${value}T00:00:00`)); }
+  dateTime(value: string): string { return new Intl.DateTimeFormat('en-AU', { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date(value)); }
+  time(value: string): string { return new Intl.DateTimeFormat('en-AU', { hour: 'numeric', minute: '2-digit' }).format(new Date(`1970-01-01T${value}`)); }
+  money(value: number): string { return value === 0 ? 'Free' : `$${value.toFixed(0)}`; }
+  weatherText(code: number): string { if (code === 0) return 'Clear sky'; if ([1, 2, 3].includes(code)) return 'Partly cloudy'; if ([61, 63, 65, 80, 81, 82].includes(code)) return 'Rain possible'; if (code >= 95) return 'Thunderstorm'; return 'Mixed conditions'; }
+}

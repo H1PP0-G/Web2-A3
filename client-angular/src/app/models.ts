@@ -1,0 +1,19 @@
+export interface Category { id: number; name: string; description?: string; }
+export interface Organisation { id: number; name: string; mission: string; email: string; phone: string; website?: string; }
+export interface Registration { id: number; eventId: number; fullName: string; email: string; phone: string; ticketCount: number; registeredAt: string; }
+export interface CharityEvent {
+  id: number; name: string; purpose: string; description: string; date: string; startTime: string; endTime: string;
+  venue: string; address: string; city: string; latitude: number; longitude: number; ticketPrice: number;
+  goalAmount: number; raisedAmount: number; progressPercent: number; imageKey: string;
+  status: 'active' | 'suspended'; eventStatus: 'active' | 'suspended' | 'past'; category: Category; organisation: Organisation;
+  registrationCount?: number; registrations?: Registration[];
+}
+export interface EventPayload {
+  organisationId: number; categoryId: number; name: string; purpose: string; description: string; date: string;
+  startTime: string; endTime: string; venue: string; address: string; city: string; latitude: number; longitude: number;
+  ticketPrice: number; goalAmount: number; raisedAmount: number; imageKey: string; status: 'active' | 'suspended';
+}
+export interface WeatherForecast {
+  date: string; latitude: number; longitude: number;
+  daily: { time: string[]; weather_code: number[]; temperature_2m_max: number[]; temperature_2m_min: number[]; };
+}
