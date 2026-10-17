@@ -1,5 +1,7 @@
 <header class="site-header">
-  <a class="brand" routerLink="/"><span class="brand-mark">HH</span><span>Harbour Hearts<small>Foundation</small></span></a>
+  <a class="brand" routerLink="/"
+    ><span class="brand-mark">HH</span><span>Harbour Hearts<small>Foundation</small></span></a
+  >
   <nav aria-label="Main navigation">
     <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
     <a routerLink="/search" routerLinkActive="active">Find an event</a>
@@ -8,4 +10,9 @@
   </nav>
 </header>
 <main><router-outlet /></main>
-<footer class="site-footer"><div><strong>Harbour Hearts Foundation</strong><span>Community powered. Future focused.</span></div><span>hello@harbourhearts.org.au · +61 2 5550 1840</span></footer>
+<footer class="site-footer">
+  <div>
+    <strong>Harbour Hearts Foundation</strong><span>Community powered. Future focused.</span>
+  </div>
+  <span>hello@harbourhearts.org.au · +61 2 5550 1840</span>
+</footer>

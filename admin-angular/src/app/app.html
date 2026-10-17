@@ -1,3 +1,12 @@
-<header class="admin-header"><a class="brand" routerLink="/"><span class="brand-mark">HH</span><span>Harbour Hearts<small>Staff console</small></span></a><nav><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Events</a><a routerLink="/events/new" routerLinkActive="active">New event</a><a href="/">Public site</a></nav></header>
+<header class="admin-header">
+  <a class="brand" routerLink="/"
+    ><span class="brand-mark">HH</span><span>Harbour Hearts<small>Staff console</small></span></a
+  >
+  <nav>
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+      >Events</a
+    ><a routerLink="/events/new" routerLinkActive="active">New event</a><a href="/">Public site</a>
+  </nav>
+</header>
 <main><router-outlet /></main>
 <footer class="admin-footer">Harbour Hearts Foundation · Event administration</footer>
