@@ -2,7 +2,8 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "cli": {
-    "packageManager": "npm"
+    "packageManager": "npm",
+    "analytics": "755d5dd7-9106-4d40-87bd-27337f2b52bd"
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -40,8 +41,8 @@
       "architect": {
         "build": {
           "builder": "@angular/build:application",
-            "options": {
-              "baseHref": "/admin/",
+          "options": {
+            "baseHref": "/admin/",
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "assets": [
@@ -50,9 +51,7 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.css"
-            ]
+            "styles": ["src/styles.css"]
           },
           "configurations": {
             "production": {

@@ -7,4 +7,5 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
+/** Provides the shared administrator header, navigation, body outlet and footer. */
 export class App {}
